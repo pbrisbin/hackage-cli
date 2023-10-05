@@ -13,74 +13,79 @@
 --
 module Main where
 
-import           Prelude                                hiding (log)
+import           Prelude                                           hiding (log)
 
-import qualified Data.Aeson                             as J
-import qualified Data.Aeson.Types                       as J
-import qualified Data.ByteString.Builder                as Builder
 import           Control.DeepSeq
 import           Control.Exception
 import           Control.Monad
-import           Control.Monad.Except                   (MonadError(..), ExceptT, runExceptT)
+import           Control.Monad.Except                              (ExceptT,
+                                                                    MonadError (..),
+                                                                    runExceptT)
 import           Control.Monad.State.Strict
+import qualified Data.Aeson                                        as J
+import qualified Data.Aeson.Types                                  as J
 import           Data.Bits
-import           Data.ByteString                        (ByteString)
-import qualified Data.ByteString                        as BS
-import qualified Data.ByteString.Char8                  as BS8
-import qualified Data.ByteString.Lazy                   as BSL
-import qualified Data.ByteString.Search                 as BSS
-import           Data.Char                              (isSpace)
-import           Data.Foldable                          (toList)
-import qualified Data.List                              as List
+import           Data.ByteString                                   (ByteString)
+import qualified Data.ByteString                                   as BS
+import qualified Data.ByteString.Builder                           as Builder
+import qualified Data.ByteString.Char8                             as BS8
+import qualified Data.ByteString.Lazy                              as BSL
+import qualified Data.ByteString.Search                            as BSS
+import           Data.Char                                         (isSpace)
+import           Data.Foldable                                     (toList)
+import qualified Data.List                                         as List
 import           Data.Maybe
-import           Data.Time.Clock.POSIX                  (getPOSIXTime)
+import           Data.Time.Clock.POSIX                             (getPOSIXTime)
 #if !MIN_VERSION_base(4,11,0)
-import           Data.Semigroup                         (Semigroup(..))
+import           Data.Semigroup                                    (Semigroup (..))
 #endif
 
-import qualified Distribution.Package                   as C
-import qualified Distribution.PackageDescription        as C
-import qualified Distribution.PackageDescription.Parsec as C
-import qualified Distribution.Parsec                    as C
-import qualified Distribution.Fields                    as C
-import qualified Distribution.Fields.Field              as C (fieldAnn)
-import qualified Distribution.Pretty                    as C
-import qualified Distribution.Verbosity                 as C
-import qualified Distribution.Version                   as C
-import qualified Distribution.Text                      as C
+import qualified Distribution.Fields                               as C
+import qualified Distribution.Fields.Field                         as C (fieldAnn)
+import qualified Distribution.Package                              as C
+import qualified Distribution.PackageDescription                   as C
+import qualified Distribution.PackageDescription.Parsec            as C
+import qualified Distribution.Parsec                               as C
+import qualified Distribution.Pretty                               as C
+import qualified Distribution.Text                                 as C
+import qualified Distribution.Verbosity                            as C
+import qualified Distribution.Version                              as C
 #if MIN_VERSION_Cabal(3,7,0)
-import qualified Distribution.Simple.PackageDescription as C
+import qualified Distribution.Simple.PackageDescription            as C
 #endif
 
 import           Lens.Micro
 import           Lens.Micro.Mtl
 import           Lens.Micro.TH
 
+import qualified Data.Version                                      as V
 import           Network.Http.Client
 import           Network.NetRc
-import           Numeric.Natural                        (Natural)
-import           Options.Applicative                    as OA
-import           System.Directory
-import           System.Environment                     (lookupEnv)
-import           System.Exit                            (ExitCode (..), exitFailure)
-import           System.FilePath
-import           System.IO                              (hPutStrLn, stderr)
-import           System.IO.Error                        (tryIOError, isDoesNotExistError)
-import qualified System.IO.Streams                      as Streams
-import           System.Process.ByteString              (readProcessWithExitCode)
-import           Text.HTML.TagSoup
-import           Text.Printf                            (printf)
+import           Numeric.Natural                                   (Natural)
+import           Options.Applicative                               as OA
 import qualified Paths_hackage_cli
-import qualified Data.Version as V
+import           System.Directory
+import           System.Environment                                (lookupEnv)
+import           System.Exit                                       (ExitCode (..),
+                                                                    exitFailure)
+import           System.FilePath
+import           System.IO                                         (hPutStrLn,
+                                                                    stderr)
+import           System.IO.Error                                   (isDoesNotExistError,
+                                                                    tryIOError)
+import qualified System.IO.Streams                                 as Streams
+import           System.Process.ByteString                         (readProcessWithExitCode)
+import           Text.HTML.TagSoup
+import           Text.Printf                                       (printf)
 
 import qualified Distribution.Types.BuildInfo.Lens                 as LC
 import qualified Distribution.Types.GenericPackageDescription.Lens as LC
 
 -- import Cabal
 
-import Distribution.Server.Util.CabalRevisions
-import IndexShaSum
-import CabalEdit
+import           CabalEdit
+import           Distribution.Server.Util.CabalRevisions
+import           IndexShaSum
 
 type PkgName = ByteString
 type PkgVer  = ByteString
@@ -404,7 +409,7 @@ decodeVersions bs = do
   where
     toPairs :: PkgVerStatus -> Maybe [String] -> [(PkgVer,PkgVerStatus)]
     toPairs s (Just vs) = [(BS8.pack v, s) | v <- vs]
-    toPairs _ _ = []
+    toPairs _ _         = []
 
 closeHConn :: HIO ()
 closeHConn = do
@@ -734,9 +739,9 @@ mainWithOptions Options {..} = do
              forM_ vs $ \(v,unp) -> do
                  let status = case unp of
                          _ | optNoAnn -> ""
-                         Normal      -> "    "
-                         Deprecated  -> "[D] "
-                         UnPreferred -> "[U] "
+                         Normal       -> "    "
+                         Deprecated   -> "[D] "
+                         UnPreferred  -> "[U] "
                  BS8.putStrLn $ status <> pkgn <> "-" <> v
            return ()
 
